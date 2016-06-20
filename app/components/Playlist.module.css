@@ -1,0 +1,40 @@
+.container {
+  float: right;
+  position: relative;
+  text-align: center;
+  width: 75%;
+  margin-bottom: 80px;
+}
+
+.container h2 {
+  font-size: 2rem;
+  margin-bottom: 40px;
+}
+
+.container a {
+  font-size: 1.1rem;
+}
+
+.playlist {
+  top: 80px;
+  position: relative;
+}
+
+.cover {
+    margin-left: 20px;
+    text-align: left;
+}
+
+.buttons {
+    display: block;
+}
+
+.button {
+    background: #fff;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 10px;
+    margin: 10px;
+}

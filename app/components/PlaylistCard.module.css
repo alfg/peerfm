@@ -1,0 +1,34 @@
+.playlistCard {
+    float: left;
+    width: 240px;
+    margin-bottom: 40px;
+}
+.playlistThumbnail__img {
+    width: 220px;
+    height: 200px;
+    box-shadow: 0 0 8px 0 #232c39;
+}
+
+.playlistCardContent {
+    font-family: "alternate-gothic-no-1-d", "Futura Condensed", "Arial Narrow", Arial, sans-serif;
+    font-weight: normal;
+    font-size: 1.4em;
+    line-height: 1em;
+    text-transform: uppercase;
+}
+
+.playlistCardContent__subtitle,
+.playlistCardContent__title {
+    margin: 0;
+    color: #fff;
+    overflow: hidden;
+    max-height: 2em;
+}
+
+.playlistCardContent__subtitle {
+    font-size: 0.7em;
+}
+
+.playlistCardContent__subtitle {
+    color: #cdcccb;
+}

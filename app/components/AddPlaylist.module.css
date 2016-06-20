@@ -1,0 +1,53 @@
+.container {
+  float: right;
+  position: relative;
+  width: 75%;
+}
+
+.container h2 {
+  font-size: 3rem;
+  margin-bottom: 40px;
+  text-align: left;
+}
+
+.container a {
+  font-size: 1.1rem;
+}
+
+.addPlaylist {
+  top: 120px;
+  margin-left: 20px;
+  position: relative;
+}
+
+.magnetInput {
+  float: left;
+  width: 50%;
+  height: 38px;
+  padding: 6px 10px;
+  background-color: #fff;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.magnetInput:focus {
+  border: 1px solid #FDD41B;
+  outline: 0; }
+
+.buttons {
+    display: inline-block;
+    float: left;
+}
+
+.button {
+    background: #0E0E0E;
+    border: 0;
+    border-radius: 10px;
+    color: #FDDB2F;
+    cursor: pointer;
+    display: inline-block;
+    padding: 10px;
+    margin: 0 10px;
+}
