@@ -3,6 +3,8 @@ A Streaming Peer-to-Peer Desktop Music Player based on [Magnet URIs](https://en.
 
 Built using [Electron](http://electron.atom.io) and [Node.js](https://nodejs.org/).
 
+**RadicalFM is currently in Alpha!**
+
 ![RadicalFM](screenshot.png)
 
 ## Features
