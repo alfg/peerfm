@@ -1,53 +1,83 @@
-/* eslint strict: 0 */
-'use strict';
+/* eslint-disable max-len */
+/**
+ * Build config for development process that uses Hot-Module-Replacement
+ * https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
+ */
 
-const webpack = require('webpack');
-const webpackTargetElectronRenderer = require('webpack-target-electron-renderer');
-const baseConfig = require('./webpack.config.base');
+import webpack from 'webpack';
+import validate from 'webpack-validator';
+import merge from 'webpack-merge';
+import formatter from 'eslint-formatter-pretty';
+import baseConfig from './webpack.config.base';
 
+const port = process.env.PORT || 3000;
 
-const config = Object.create(baseConfig);
+export default validate(merge(baseConfig, {
+  debug: true,
 
-config.debug = true;
+  devtool: 'inline-source-map',
 
-config.devtool = 'cheap-module-eval-source-map';
+  entry: [
+    `webpack-hot-middleware/client?path=http://localhost:${port}/__webpack_hmr`,
+    'babel-polyfill',
+    './app/index'
+  ],
 
-config.entry = [
-  'babel-polyfill',
-  'webpack-hot-middleware/client?path=http://localhost:3000/__webpack_hmr',
-  './app/index'
-];
+  output: {
+    publicPath: `http://localhost:${port}/dist/`
+  },
 
-config.output.publicPath = 'http://localhost:3000/dist/';
+  module: {
+    // preLoaders: [
+    //   {
+    //     test: /\.js$/,
+    //     loader: 'eslint-loader',
+    //     exclude: /node_modules/
+    //   }
+    // ],
+    loaders: [
+      {
+        test: /\.global\.css$/,
+        loaders: [
+          'style-loader',
+          'css-loader?sourceMap'
+        ]
+      },
 
-config.module.loaders.push({
-  test: /^((?!\.module).)*\.css$/,
-  loaders: [
-    'style-loader',
-    'css-loader?sourceMap'
-  ]
-}, {
-  test: /\.module\.css$/,
-  loaders: [
-    'style-loader',
-    'css-loader?modules&sourceMap&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!'
-  ]
-});
+      {
+        test: /^((?!\.global).)*\.css$/,
+        loaders: [
+          'style-loader',
+          'css-loader?modules&sourceMap&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
+        ]
+      },
 
-config.node = { __dirname: true };
+      { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff' },
+      { test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff' },
+      { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/octet-stream' },
+      { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: 'file' },
+      { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=image/svg+xml' },
+    ]
+  },
 
-config.plugins.push(
-  new webpack.DefinePlugin({ 'global.GENTLY': false }),
-  new webpack.HotModuleReplacementPlugin(),
-  new webpack.NoErrorsPlugin(),
-  new webpack.DefinePlugin({
-    '__DEV__': true,
-    'process.env': {
-      'NODE_ENV': JSON.stringify('development')
-    }
-  })
-);
+  eslint: {
+    formatter
+  },
 
-config.target = webpackTargetElectronRenderer(config);
+  plugins: [
+    // https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
+    new webpack.HotModuleReplacementPlugin(),
 
-module.exports = config;
+    // “If you are using the CLI, the webpack process will not exit with an error code by enabling this plugin.”
+    // https://github.com/webpack/docs/wiki/list-of-plugins#noerrorsplugin
+    new webpack.NoErrorsPlugin(),
+
+    // NODE_ENV should be production so that modules do not perform certain development checks
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('development')
+    })
+  ],
+
+  // https://github.com/chentsulin/webpack-target-electron-renderer#how-this-module-works
+  target: 'electron-renderer'
+}));

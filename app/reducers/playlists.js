@@ -1,14 +1,14 @@
 import { PLAYLISTS } from '../actions/playlists';
 
 const initialState = {
-    home: [],
-}
+  home: [],
+};
 
 export default function track(state = initialState, action) {
   switch (action.type) {
     case PLAYLISTS:
       return Object.assign({}, state, {
-          home: action.home
+        home: action.home
       });
 
     default:

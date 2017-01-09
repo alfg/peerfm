@@ -1,18 +1,16 @@
 import React, { Component, PropTypes } from 'react';
-import Nav from './common/Nav.js';
-import SideNav from './common/SideNav.js';
+import Nav from './common/Nav';
+import SideNav from './common/SideNav';
 import styles from './Home.module.css';
-import PlaylistCard from './PlaylistCard.js';
-import PlaylistService from '../services/PlaylistService.js';
+import PlaylistCard from './PlaylistCard';
+import PlaylistService from '../services/PlaylistService';
 
 export default class Home extends Component {
 
   static propTypes = {
+    setHomePlaylist: PropTypes.func,
+    playlists: PropTypes.shape
   };
-
-  constructor(props) {
-    super(props);
-  }
 
   componentDidMount() {
     const ps = new PlaylistService();

@@ -1,57 +1,85 @@
-/* eslint strict: 0 */
-'use strict';
+/**
+ * Build config for electron 'Renderer Process' file
+ */
 
-const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const webpackTargetElectronRenderer = require('webpack-target-electron-renderer');
-const baseConfig = require('./webpack.config.base');
+import path from 'path';
+import webpack from 'webpack';
+import validate from 'webpack-validator';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import merge from 'webpack-merge';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import BabiliPlugin from 'babili-webpack-plugin';
+import baseConfig from './webpack.config.base';
 
+export default validate(merge(baseConfig, {
+  devtool: 'cheap-module-source-map',
 
-const config = Object.create(baseConfig);
+  entry: [
+    'babel-polyfill',
+    './app/index'
+  ],
 
-config.devtool = 'source-map';
+  output: {
+    path: path.join(__dirname, 'app/dist'),
+    publicPath: '../dist/'
+  },
 
-config.entry = [
-  'babel-polyfill',
-  './app/index'
-];
+  module: {
+    loaders: [
+      // Extract all .global.css to style.css as is
+      {
+        test: /\.global\.css$/,
+        loader: ExtractTextPlugin.extract(
+          'style-loader',
+          'css-loader'
+        )
+      },
 
-config.output.publicPath = '../dist/';
+      // Pipe other styles through css modules and append to style.css
+      {
+        test: /^((?!\.global).)*\.css$/,
+        loader: ExtractTextPlugin.extract(
+          'style-loader',
+          'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
+        )
+      },
 
-config.module.loaders.push({
-  test: /^((?!\.module).)*\.css$/,
-  loader: ExtractTextPlugin.extract(
-    'style-loader',
-    'css-loader'
-  )
-}, {
-  test: /\.module\.css$/,
-  loader: ExtractTextPlugin.extract(
-    'style-loader',
-    'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
-  )
-});
+      // Fonts
+      { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff' },
+      { test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff' },
+      { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/octet-stream' },
+      { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: 'file' },
+      { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=image/svg+xml' },
 
-config.node = { __dirname: true };
+      // Images
+      {
+        test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
+        loader: 'url-loader'
+      }
+    ]
+  },
 
-config.plugins.push(
-  new webpack.DefinePlugin({ 'global.GENTLY': false }),
-  new webpack.optimize.OccurenceOrderPlugin(),
-  new webpack.DefinePlugin({
-    '__DEV__': false,
-    'process.env': {
-      'NODE_ENV': JSON.stringify('production')
-    }
-  }),
-  new webpack.optimize.UglifyJsPlugin({
-    compressor: {
-      screw_ie8: true,
-      warnings: false
-    }
-  }),
-  new ExtractTextPlugin('style.css', { allChunks: true })
-);
+  plugins: [
+    // https://webpack.github.io/docs/list-of-plugins.html#occurrenceorderplugin
+    // https://github.com/webpack/webpack/issues/864
+    new webpack.optimize.OccurrenceOrderPlugin(),
 
-config.target = webpackTargetElectronRenderer(config);
+    // NODE_ENV should be production so that modules do not perform certain development checks
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
+    }),
 
-module.exports = config;
+    new BabiliPlugin(),
+
+    new ExtractTextPlugin('style.css', { allChunks: true }),
+
+    new HtmlWebpackPlugin({
+      filename: '../app.html',
+      template: 'app/app.html',
+      inject: false
+    })
+  ],
+
+  // https://github.com/chentsulin/webpack-target-electron-renderer#how-this-module-works
+  target: 'electron-renderer'
+}));

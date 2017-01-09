@@ -1,13 +1,23 @@
-import fs from 'fs';
 import React, { Component, PropTypes } from 'react';
-import Nav from './common/Nav.js';
-import SideNav from './common/SideNav.js';
+import Nav from './common/Nav';
+import SideNav from './common/SideNav';
 import styles from './Playlist.module.css';
-import Track from './Track.js';
-import AudioPlayer from './players/AudioPlayer.js';
-import TorrentClient from '../core/TorrentClient.js';
+import Track from './Track';
+import TorrentClient from '../core/TorrentClient';
 
 export default class Playlist extends Component {
+
+  static propTypes = {
+    location: PropTypes.shape({
+      query: PropTypes.shape({
+        magnetUri: PropTypes.string
+      })
+    }),
+    player: PropTypes.shape({}),
+    setPlaylist: PropTypes.func,
+    setMetadata: PropTypes.func,
+    setTrackUrl: PropTypes.func
+  };
 
   constructor(props) {
     super(props);
@@ -17,26 +27,26 @@ export default class Playlist extends Component {
 
     this.tc = new TorrentClient(magnetUri);
     this.state = {
-        metadata: null,
-        tracks: [],
-        swarm: null
-    }
+      metadata: null,
+      tracks: [],
+      swarm: null
+    };
     this.timer = null;
   }
 
   componentDidMount() {
     this.tc.on('tracks', (tracks) => {
-        this.setState({ tracks: tracks });
-        this.props.setPlaylist(tracks);
+      this.setState({ tracks });
+      this.props.setPlaylist(tracks);
     });
 
     this.tc.on('metadata', (metadata) => {
-        this.setState({ metadata: metadata });
-        this.props.setMetadata(metadata);
+      this.setState({ metadata });
+      this.props.setMetadata(metadata);
     });
 
     this.timer = setInterval(() => {
-        this.setState({ swarm: this.tc.getSwarm() });
+      this.setState({ swarm: this.tc.getSwarm() });
     }, 2000);
 
     // setInterval(() => {
@@ -44,11 +54,10 @@ export default class Playlist extends Component {
     //     console.log('progress update');
     //   });
     // }, 5000);
-
   }
 
   componentWillUnmount() {
-      clearInterval(this.timer);
+    clearInterval(this.timer);
   }
 
   render() {
@@ -56,7 +65,7 @@ export default class Playlist extends Component {
     const { setTrackUrl } = this.props;
     const { downloadPlaylist, downloadTrack, getFileProgress } = this.tc;
 
-    const trackNodes = this.state.tracks.map((v, i, arr) => {
+    const trackNodes = this.state.tracks.map((v, i) => {
       const isCurrentTrackPlaying = this.props.player.playing && this.props.player.track === i;
       return (
         <Track
@@ -86,10 +95,10 @@ export default class Playlist extends Component {
           />
 
           <div className={styles.cover}>
-              <h2>{metadata !== null ? metadata.name : "Loading playlist..."}</h2>
-              <div className={styles.buttons}>
-                  <button className={styles.button} onClick={downloadPlaylist}><i className="fa fa-download"></i> Download</button>
-              </div>
+            <h2>{metadata !== null ? metadata.name : 'Loading playlist...'}</h2>
+            <div className={styles.buttons}>
+              <button className={styles.button} onClick={downloadPlaylist}><i className="fa fa-download" /> Download</button>
+            </div>
           </div>
           {trackNodes}
         </div>

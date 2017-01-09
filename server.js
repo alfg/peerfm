@@ -1,34 +1,52 @@
-/* eslint strict: 0, no-console: 0 */
-'use strict';
+/* eslint-disable no-console */
+/**
+ * Setup and run the development server for Hot-Module-Replacement
+ * https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
+ */
 
-const path = require('path');
-const express = require('express');
-const webpack = require('webpack');
-const config = require('./webpack.config.development');
+import express from 'express';
+import webpack from 'webpack';
+import webpackDevMiddleware from 'webpack-dev-middleware';
+import webpackHotMiddleware from 'webpack-hot-middleware';
+import { spawn } from 'child_process';
+
+import config from './webpack.config.development';
+
+const argv = require('minimist')(process.argv.slice(2));
 
 const app = express();
 const compiler = webpack(config);
+const PORT = process.env.PORT || 3000;
 
-const PORT = 3000;
-
-app.use(require('webpack-dev-middleware')(compiler, {
+const wdm = webpackDevMiddleware(compiler, {
   publicPath: config.output.publicPath,
   stats: {
     colors: true
   }
-}));
-
-app.use(require('webpack-hot-middleware')(compiler));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'app', 'hot-dev-app.html'));
 });
 
-app.listen(PORT, 'localhost', err => {
-  if (err) {
-    console.log(err);
-    return;
+app.use(wdm);
+
+app.use(webpackHotMiddleware(compiler));
+
+const server = app.listen(PORT, 'localhost', serverError => {
+  if (serverError) {
+    return console.error(serverError);
+  }
+
+  if (argv['start-hot']) {
+    spawn('npm', ['run', 'start-hot'], { shell: true, env: process.env, stdio: 'inherit' })
+      .on('close', code => process.exit(code))
+      .on('error', spawnError => console.error(spawnError));
   }
 
   console.log(`Listening at http://localhost:${PORT}`);
+});
+
+process.on('SIGTERM', () => {
+  console.log('Stopping dev server');
+  wdm.close();
+  server.close(() => {
+    process.exit(0);
+  });
 });

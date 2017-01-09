@@ -6,7 +6,8 @@ import styles from './AudioPlayer.module.css';
 export default class AudioPlayer extends Component {
 
   static propTypes = {
-    player: PropTypes.object.isRequired,
+    player: PropTypes.shape({}),
+    setTrackUrl: PropTypes.func
   };
 
   constructor(props) {
@@ -42,7 +43,7 @@ export default class AudioPlayer extends Component {
     }
   };
 
-  onEnded = (e) => {
+  onEnded = () => {
     console.log('ended');
     this.setState({ playing: true });
     this.playNext();
@@ -67,128 +68,141 @@ export default class AudioPlayer extends Component {
     }
   };
 
-  onSeekMouseDown = (e) => {
-    this.setState({ seeking: true })
+  onSeekMouseDown = () => {
+    this.setState({ seeking: true });
   };
 
   onSeekChange = (e) => {
-    this.setState({ played: parseFloat(e.target.value) })
+    this.setState({ played: parseFloat(e.target.value) });
   };
 
   onSeekMouseUp = (e) => {
     this.setState({ seeking: false })
-    this.refs.player.seekTo(parseFloat(e.target.value))
+    this.playerRef.seekTo(parseFloat(e.target.value));
+  };
+
+
+  setVolume = (e) => {
+    this.setState({ volume: parseFloat(e.target.value) });
   };
 
   playPause = () => {
     const playing = !this.state.playing;
-    this.setState({ playing: playing });
+    this.setState({ playing });
     this.props.setTrackUrl(this.props.player.track, playing);
   };
 
   playNext() {
     console.log('playNext');
-    var nextTrack = this.props.player.track + 1;
+    let nextTrack = this.props.player.track + 1;
     console.log(nextTrack);
     nextTrack = nextTrack >= this.props.player.playlist.length ? 0 : nextTrack;
     this.props.setTrackUrl(nextTrack, this.state.playing);
   }
 
   playPrev() {
-    var prevTrack = this.props.player.track - 1;
+    let prevTrack = this.props.player.track - 1;
     prevTrack = prevTrack < 0 ? 0 : prevTrack;
     this.props.setTrackUrl(prevTrack, this.state.playing);
   }
 
-  setVolume = (e) => {
-    this.setState({ volume: parseFloat(e.target.value) });
-  };
-
   mute() {
-      if (this.state.volume === 0) {
-          this.setState({ volume: this.state.mutedVol });
-      } else {
-          this.setState({ mutedVol: this.state.volume, volume: 0 });
-      }
+    if (this.state.volume === 0) {
+      this.setState({ volume: this.state.mutedVol });
+    } else {
+      this.setState({ mutedVol: this.state.volume, volume: 0 });
+    }
   }
 
   render() {
     const { track, playing, playlist, metadata } = this.props.player;
     const { volume, duration, played } = this.state;
-    const url = track != null ? `/tmp/torrent-stream/${metadata.infoHash}/${playlist[track].path}` : null;
+
+    // TODO: Create FileStorage module.
+    let url = null;
+    if (process.platform === 'win32') {
+      const path = track != null ? playlist[track].path.replace(/\\/g, '/') : null;
+      url = track != null ? `C:/tmp/torrent-stream/${metadata.infoHash}/${path}` : null;
+    } else {
+      url = track != null ? `/tmp/torrent-stream/${metadata.infoHash}/${playlist[track].path}` : null;
+    }
+
 
     return (
-        <div className={styles.container} onKeyPress={this.onKeyPress}>
-            <div className={styles.player}>
-                <ReactPlayer
-                  ref='player'
-                  url={url}
-                  playing={playing}
-                  volume={volume}
-                  height="100%"
-                  width="100%"
-                  onPlay={() => this.setState({ playing: true })}
-                  onPause={() => this.setState({ playing: false })}
-                  onBuffer={() => console.log('onBuffer')}
-                  onEnded={this.onEnded}
-                  onError={(e) => console.log('onError', e)}
-                  onProgress={this.onProgress}
-                  onDuration={(duration) => this.setState({ duration })}
-                />
-            </div>
-            <div className={styles.controls}>
-                <button className={styles.back} onClick={this.playPrev}><i className="fa fa-step-backward"></i></button>
-                <button className={styles.play} onClick={this.playPause}><i className={this.state.playing ? 'fa fa-pause' : 'fa fa-play'}></i></button>
-                <button className={styles.forward} onClick={this.playNext}><i className="fa fa-step-forward"></i></button>
-            </div>
-
-            <div className={styles.scrub}>
-                <table><tbody><tr>
-                  <td className={styles.duration}>{format(duration * played)}</td>
-                  <td>
-                      <input
-                        type="range" min={0} max={1} step="any"
-                        value={this.state.played}
-                        onMouseDown={this.onSeekMouseDown}
-                        onChange={this.onSeekChange}
-                        onMouseUp={this.onSeekMouseUp}
-                      />
-                  </td>
-                  <td className={styles.duration}>{format(duration * (1 - played))}</td>
-                </tr></tbody></table>
-            </div>
-
-            <div className={styles.volume}>
-                <table><tbody>
-                <tr><td>
-                    <div className={styles.controls}>
-                      <button className={styles.mute} onClick={this.mute}><i className={this.state.volume === 0 ? "fa fa-volume-off" : "fa fa-volume-up"}></i></button>
-                    </div>
-                </td>
-                <td>
-                    <input
-                      type="range" min={0} max={1} step="any"
-                      value={this.state.volume}
-                      onChange={this.setVolume}
-                    />
-                </td></tr></tbody></table>
-            </div>
+      <div className={styles.container} onKeyPress={this.onKeyPress}>
+        <div className={styles.player}>
+          <ReactPlayer
+            ref={(c) => { this.playerRef = c; }}
+            url={url}
+            playing={playing}
+            volume={volume}
+            height="100%"
+            width="100%"
+            onPlay={() => this.setState({ playing: true })}
+            onPause={() => this.setState({ playing: false })}
+            onBuffer={() => console.log('onBuffer')}
+            onEnded={this.onEnded}
+            onError={(e) => console.log('onError', e)}
+            onProgress={this.onProgress}
+            onDuration={(duration) => this.setState({ duration })}
+          />
         </div>
+        <div className={styles.controls}>
+          <button className={styles.back} onClick={this.playPrev}><i className="fa fa-step-backward"></i></button>
+          <button className={styles.play} onClick={this.playPause}><i className={this.state.playing ? 'fa fa-pause' : 'fa fa-play'}></i></button>
+          <button className={styles.forward} onClick={this.playNext}><i className="fa fa-step-forward"></i></button>
+        </div>
+
+        <div className={styles.scrub}>
+          <table><tbody><tr>
+            <td className={styles.duration}>{format(duration * played)}</td>
+            <td>
+              <input
+                type="range" min={0} max={1} step="any"
+                value={this.state.played}
+                onMouseDown={this.onSeekMouseDown}
+                onChange={this.onSeekChange}
+                onMouseUp={this.onSeekMouseUp}
+              />
+            </td>
+            <td className={styles.duration}>{format(duration * (1 - played))}</td>
+          </tr></tbody></table>
+        </div>
+
+        <div className={styles.volume}>
+          <table><tbody>
+            <tr>
+              <td>
+                <div className={styles.controls}>
+                  <button className={styles.mute} onClick={this.mute}><i className={this.state.volume === 0 ? "fa fa-volume-off" : "fa fa-volume-up"}></i></button>
+                </div>
+              </td>
+              <td>
+                <input
+                  type="range" min={0} max={1} step="any"
+                  value={this.state.volume}
+                  onChange={this.setVolume}
+                />
+              </td>
+            </tr>
+          </tbody></table>
+        </div>
+      </div>
     );
   }
 }
 
-function format (seconds) {
-  const date = new Date(seconds * 1000)
-  const hh = date.getHours()
-  const mm = date.getMinutes()
-  const ss = pad(date.getSeconds())
+function format(seconds) {
+  const date = new Date(seconds * 1000);
+  const hh = date.getHours();
+  const mm = date.getMinutes();
+  const ss = pad(date.getSeconds());
   if (hh) {
-    return `${pad(mm)}:${ss}`
+    return `${pad(mm)}:${ss}`;
   }
-  return `${mm}:${ss}`
+  return `${mm}:${ss}`;
 }
 
-function pad (string) {
-  return ('0' + string).slice(-2)
+function pad(string) {
+  return `0${string}`.slice(-2);
 }

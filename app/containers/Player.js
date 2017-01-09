@@ -5,7 +5,7 @@ import * as PlayerActions from '../actions/player';
 
 function mapStateToProps(state) {
   return {
-    player: state.player,
+    player: state.player
   };
 }
 

@@ -1,8 +1,8 @@
-import React, { Component, PropTypes } from 'react';
-import Nav from './common/Nav.js';
-import SideNav from './common/SideNav.js';
-import styles from './AddPlaylist.module.css';
+import React, { Component } from 'react';
 import { Link } from 'react-router';
+import Nav from './common/Nav';
+import SideNav from './common/SideNav';
+import styles from './AddPlaylist.module.css';
 
 export default class AddPlaylist extends Component {
 
@@ -14,7 +14,7 @@ export default class AddPlaylist extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.state = {
       magnet: ''
-    }
+    };
   }
 
   componentDidMount() {
@@ -29,13 +29,13 @@ export default class AddPlaylist extends Component {
   }
 
   render() {
-    var goLink;
+    let goLink;
     if (this.validateMagnet()) {
       goLink = (
         <div className={styles.buttons}>
-          <Link className={styles.button} to="/playlist" query={{ magnetUri: this.state.magnet }}>GO</Link>
+          <Link className={styles.button} to={{ pathname: '/playlist', query: { magnetUri: this.state.magnet } }}>GO</Link>
         </div>
-      )
+      );
     }
     return (
       <div className={styles.addPlaylist}>

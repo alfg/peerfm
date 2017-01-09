@@ -1,12 +1,13 @@
 import React, { Component, PropTypes } from 'react';
-import { Link } from 'react-router';
 import styles from './Nav.module.css';
 
 
 export default class Nav extends Component {
 
   static propTypes = {
-    transform: PropTypes.string
+    download: PropTypes.number,
+    upload: PropTypes.number,
+    swarm: PropTypes.shape({})
   };
 
   constructor(props) {
@@ -30,7 +31,7 @@ export default class Nav extends Component {
     const opacity = scrollTop / window.innerHeight;
 
     const bg = {
-      backgroundColor: 'rgba(0, 0, 0, ' + opacity + ')'
+      backgroundColor: `rgba(0, 0, 0, '${opacity}')`
     };
 
     this.setState({
@@ -38,17 +39,8 @@ export default class Nav extends Component {
     });
   };
 
-  formatBytes(bytes, decimals) {
-    if (bytes == 0) return '0 Byte';
-    var k = 1000;
-    var dm = decimals + 1 || 3;
-    var sizes = ['Bytes', 'KBPS', 'MBPS', 'GBPS', 'TBPS'];
-    var i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  }
-
   render() {
-    var transform;
+    let transform;
     if (this.state.transform) {
       transform = this.state.transform;
     }
@@ -59,11 +51,20 @@ export default class Nav extends Component {
     return (
       <div className={styles.nav} onScroll={this.handleScroll} style={transform}>
         <ul className={styles.stats}>
-          <li><span><i className="fa fa-globe"></i> { swarm !== null ? swarm.wires.length : 0 } Peers</span></li>
-          <li><span ><i className="fa fa-arrow-down"></i> { download ? this.formatBytes(download) : '0 kbps' }</span></li>
-          <li><span><i className="fa fa-arrow-up"></i> { upload ? this.formatBytes(upload) : '0 kbps' }</span></li>
+          <li><span><i className="fa fa-globe" /> { swarm !== null ? swarm.wires.length : 0 } Peers</span></li>
+          <li><span ><i className="fa fa-arrow-down" /> { download ? formatBytes(download) : '0 kbps' }</span></li>
+          <li><span><i className="fa fa-arrow-up" /> { upload ? formatBytes(upload) : '0 kbps' }</span></li>
         </ul>
       </div>
     );
   }
+}
+
+function formatBytes(bytes, decimals) {
+  if (bytes === 0) return '0 Byte';
+  const k = 1000;
+  const dm = decimals + 1 || 3;
+  const sizes = ['Bytes', 'KBPS', 'MBPS', 'GBPS', 'TBPS'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat(bytes / (k ** i).toFixed(dm))} ${sizes[i]}`;
 }
