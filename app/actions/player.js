@@ -6,8 +6,8 @@ export function setTrackUrl(track, playing) {
   console.log('action:setTrackUrl', track);
   return {
     type: TRACK_URL,
-    track: track,
-    playing: playing
+    track,
+    playing
   };
 }
 
@@ -15,7 +15,7 @@ export function setPlaylist(playlist) {
   console.log('action:setPlaylist', playlist);
   return {
     type: PLAYLIST,
-    playlist: playlist
+    playlist
   };
 }
 
@@ -23,6 +23,6 @@ export function setMetadata(metadata) {
   console.log('action:setMetadata', metadata);
   return {
     type: METADATA,
-    metadata: metadata
+    metadata
   };
 }

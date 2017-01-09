@@ -1,62 +1,67 @@
-/* eslint strict: 0 */
-'use strict';
+import { app, BrowserWindow, Menu, shell } from 'electron';
 
-const electron = require('electron');
-const app = electron.app;
-const BrowserWindow = electron.BrowserWindow;
-const Menu = electron.Menu;
-const crashReporter = electron.crashReporter;
-const shell = electron.shell;
 let menu;
 let template;
 let mainWindow = null;
 
-
-crashReporter.start();
-
-if (process.env.NODE_ENV === 'development') {
-  require('electron-debug')();
+if (process.env.NODE_ENV === 'production') {
+  const sourceMapSupport = require('source-map-support'); // eslint-disable-line
+  sourceMapSupport.install();
 }
 
+if (process.env.NODE_ENV === 'development') {
+  require('electron-debug')(); // eslint-disable-line global-require
+  const path = require('path'); // eslint-disable-line
+  const p = path.join(__dirname, '..', 'app', 'node_modules'); // eslint-disable-line
+  require('module').globalPaths.push(p); // eslint-disable-line
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
 
-app.on('ready', () => {
+const installExtensions = async () => {
+  if (process.env.NODE_ENV === 'development') {
+    const installer = require('electron-devtools-installer'); // eslint-disable-line global-require
 
-  if (process.env.HOT) {
-    mainWindow = new BrowserWindow({
-      width: 1680,
-      height: 720,
-      minWidth: 1680,
-      minHeight: 728,
-      titleBarStyle: 'hidden',
-      webPreferences: {
-        allowDisplayingInsecureContent: true,
-        allowRunningInsecureContent: true,
-        webSecurity: false,
-        plugins: true
-      }
-    });
-    mainWindow.loadURL(`file://${__dirname}/app/hot-dev-app.html`);
-  } else {
-    mainWindow = new BrowserWindow({
-      width: 1280,
-      height: 720,
-      minWidth: 1100,
-      minHeight: 728,
-      titleBarStyle: 'hidden',
-      webPreferences: {
-        allowDisplayingInsecureContent: true,
-        allowRunningInsecureContent: true,
-        webSecurity: false,
-        plugins: true
-      }
-    });
-    mainWindow.loadURL(`file://${__dirname}/app/app.html`);
+    const extensions = [
+      'REACT_DEVELOPER_TOOLS',
+      'REDUX_DEVTOOLS'
+    ];
+    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+    for (const name of extensions) { // eslint-disable-line
+      try {
+        await installer.default(installer[name], forceDownload);
+      } catch (e) {} // eslint-disable-line
+    }
   }
+};
+
+app.on('ready', async () => {
+  await installExtensions();
+
+  mainWindow = new BrowserWindow({
+    show: false,
+    width: 1680,
+    height: 720,
+    minWidth: 1680,
+    minHeight: 728,
+    titleBarStyle: 'hidden',
+    webPreferences: {
+      allowDisplayingInsecureContent: true,
+      allowRunningInsecureContent: true,
+      webSecurity: false,
+      plugins: true
+    }
+  });
+
+  mainWindow.loadURL(`file://${__dirname}/app.html`);
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -64,6 +69,16 @@ app.on('ready', () => {
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.openDevTools();
+    mainWindow.webContents.on('context-menu', (e, props) => {
+      const { x, y } = props;
+
+      Menu.buildFromTemplate([{
+        label: 'Inspect element',
+        click() {
+          mainWindow.inspectElement(x, y);
+        }
+      }]).popup(mainWindow);
+    });
   }
 
   if (process.platform === 'darwin') {
@@ -134,7 +149,7 @@ app.on('ready', () => {
         label: 'Reload',
         accelerator: 'Command+R',
         click() {
-          mainWindow.restart();
+          mainWindow.webContents.reload();
         }
       }, {
         label: 'Toggle Full Screen',
@@ -217,7 +232,7 @@ app.on('ready', () => {
         label: '&Reload',
         accelerator: 'Ctrl+R',
         click() {
-          mainWindow.restart();
+          mainWindow.webContents.reload();
         }
       }, {
         label: 'Toggle &Full Screen',

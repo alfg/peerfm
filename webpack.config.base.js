@@ -1,33 +1,40 @@
-/* eslint strict: 0 */
-'use strict';
+/**
+ * Base webpack config used across other specific configs
+ */
 
-const path = require('path');
+import path from 'path';
+import validate from 'webpack-validator';
+import {
+  dependencies as externals
+} from './app/package.json';
 
-module.exports = {
+export default validate({
   module: {
     loaders: [{
       test: /\.jsx?$/,
       loaders: ['babel-loader'],
       exclude: /node_modules/
-    },
-    {
-      test: /\.json?$/,
-      loaders: ['json-loader'],
+    }, {
+      test: /\.json$/,
+      loader: 'json-loader'
     }]
   },
+
   output: {
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, 'app'),
     filename: 'bundle.js',
+
+    // https://github.com/webpack/webpack/issues/1114
     libraryTarget: 'commonjs2'
   },
+
+  // https://webpack.github.io/docs/configuration.html#resolve
   resolve: {
-    extensions: ['', '.js', '.jsx'],
+    extensions: ['', '.js', '.jsx', '.json'],
     packageMains: ['webpack', 'browser', 'web', 'browserify', ['jam', 'main'], 'main']
   },
-  plugins: [
 
-  ],
-  externals: [
-    // put your node 3rd party libraries which can't be built with webpack here (mysql, mongodb, and so on..)
-  ]
-};
+  plugins: [],
+
+  externals: Object.keys(externals || {})
+});
