@@ -18,15 +18,22 @@ export default class Track extends Component {
     this.state = {
       progress: 0
     };
+
+    this.timer = null;
   }
 
   componentDidMount() {
-    const timer = setInterval(() => {
-      if (this.state.progress === 100) clearInterval(timer);
+    this.timer = setInterval(() => {
+      if (this.state.progress === 100) clearInterval(this.timer);
       this.props.getFileProgress(this.props.track, (progress) => {
         this.setState({ progress });
       });
     }, 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timer);
+    this.timer = false;
   }
 
   handleClick() {

@@ -16,7 +16,7 @@ export default class PlaylistCard extends Component {
 
     return (
       <div className={styles.playlistCard}>
-        <Link to="/playlist" query={{ magnetUri: url }}>
+        <Link to={{ pathname: '/playlist', query: { magnetUri: url } }}>
           <img className={styles.playlistThumbnail__img} src={img} alt={title} />
         </Link>
         <div className={styles.playlistCardContent}>

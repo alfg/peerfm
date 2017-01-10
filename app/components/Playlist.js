@@ -58,6 +58,7 @@ export default class Playlist extends Component {
 
   componentWillUnmount() {
     clearInterval(this.timer);
+    this.timer = false;
   }
 
   render() {

@@ -9,7 +9,9 @@ export default class Home extends Component {
 
   static propTypes = {
     setHomePlaylist: PropTypes.func,
-    playlists: PropTypes.shape
+    playlists: PropTypes.shape({
+      home: PropTypes.arrayOf(PropTypes.shape({}))
+    })
   };
 
   componentDidMount() {
@@ -20,17 +22,15 @@ export default class Home extends Component {
   }
 
   render() {
-    const playlistNodes = this.props.playlists.home.map(v => {
-      return (
-        <PlaylistCard
-          key={v.id}
-          img={v.thumbnail}
-          title={v.title}
-          subtitle={v.subtitle}
-          url={v.url}
-        />
-      );
-    });
+    const playlistNodes = this.props.playlists.home.map(v =>
+      <PlaylistCard
+        key={v.id}
+        img={v.thumbnail}
+        title={v.title}
+        subtitle={v.subtitle}
+        url={v.url}
+      />
+    );
 
     return (
       <div className={styles.home}>
