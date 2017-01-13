@@ -36,8 +36,9 @@ export default class SideNav extends Component {
 
         <ul className={styles.navLinks}>
           <li className={styles.title}>Main</li>
-          <Link to="/browse" activeClassName={styles.active}><li><i className="fa fa-search" /> Browse</li></Link>
+          <Link to="/library" activeClassName={styles.active}><li><i className="fa fa-book" /> Library</li></Link>
           <Link to="/add" activeClassName={styles.active}><li><i className="fa fa-magnet" /> Add Playlist</li></Link>
+          <Link to="/settings" activeClassName={styles.active}><li><i className="fa fa-cog" /> Settings</li></Link>
         </ul>
 
         <ul className={styles.status}>

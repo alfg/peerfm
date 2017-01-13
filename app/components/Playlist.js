@@ -4,6 +4,7 @@ import SideNav from './common/SideNav';
 import styles from './Playlist.module.css';
 import Track from './Track';
 import TorrentClient from '../core/TorrentClient';
+import PlaylistService from '../services/PlaylistService';
 
 export default class Playlist extends Component {
 
@@ -22,16 +23,18 @@ export default class Playlist extends Component {
   constructor(props) {
     super(props);
 
-    const { magnetUri } = this.props.location.query;
-    console.log(this.props.location);
+    this.magnetUri = this.props.location.query.magnetUri;
+    this.tc = new TorrentClient(this.magnetUri);
+    this.ps = new PlaylistService();
 
-    this.tc = new TorrentClient(magnetUri);
     this.state = {
       metadata: null,
       tracks: [],
-      swarm: null
+      swarm: null,
+      playlistSaved: false
     };
     this.timer = null;
+    this.swarmInterval = 2000;
   }
 
   componentDidMount() {
@@ -47,7 +50,11 @@ export default class Playlist extends Component {
 
     this.timer = setInterval(() => {
       this.setState({ swarm: this.tc.getSwarm() });
-    }, 2000);
+    }, this.swarmInterval);
+
+    this.ps.playlistExists(this.magnetUri, (state) => {
+      this.setState({ playlistSaved: state });
+    });
 
     // setInterval(() => {
     //   this.tc.getProgress(() => {
@@ -59,6 +66,25 @@ export default class Playlist extends Component {
   componentWillUnmount() {
     clearInterval(this.timer);
     this.timer = false;
+  }
+
+  handleSavePlaylist = () => {
+    if (this.state.playlistSaved) {
+      this.ps.removePlaylist(this.magnetUri, (val) => {
+        console.log('Removed playlist.');
+        this.setState({ playlistSaved: false });
+      });
+    } else {
+      const playlist = {
+        title: this.state.metadata.name,
+        url: this.magnetUri
+      };
+
+      this.ps.savePlaylist(playlist, (val) => {
+        console.log('Saved playlist.', val);
+        this.setState({ playlistSaved: true });
+      });
+    }
   }
 
   render() {
@@ -99,6 +125,7 @@ export default class Playlist extends Component {
             <h2>{metadata !== null ? metadata.name : 'Loading playlist...'}</h2>
             <div className={styles.buttons}>
               <button className={styles.button} onClick={downloadPlaylist}><i className="fa fa-download" /> Download</button>
+              <button className={styles.button} onClick={this.handleSavePlaylist}><i className="fa fa-save" /> { this.state.playlistSaved ? 'Remove Playlist' : 'Save Playlist' }</button>
             </div>
           </div>
           {trackNodes}

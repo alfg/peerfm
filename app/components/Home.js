@@ -16,16 +16,19 @@ export default class Home extends Component {
 
   componentDidMount() {
     const ps = new PlaylistService();
-    ps.getHomePlaylists((data) => {
+    // ps.getHomePlaylists((data) => {
+    //   this.props.setHomePlaylist(data);
+    // });
+    ps.loadPlaylists((data) => {
       this.props.setHomePlaylist(data);
     });
   }
 
   render() {
-    const playlistNodes = this.props.playlists.home.map(v =>
+    const playlistNodes = this.props.playlists.home.map((v, i) =>
       <PlaylistCard
-        key={v.id}
-        img={v.thumbnail}
+        key={i}
+        img="http://placehold.it/400x300"
         title={v.title}
         subtitle={v.subtitle}
         url={v.url}
@@ -37,8 +40,8 @@ export default class Home extends Component {
         <SideNav />
         <div className={styles.container}>
           <Nav />
-          <h2>Browse</h2>
-          {playlistNodes.length !== 0 ? playlistNodes : 'Loading playlists...' }
+          <h2>Library</h2>
+          {playlistNodes.length !== 0 ? playlistNodes : 'No Playlists in your library.' }
         </div>
       </div>
     );
