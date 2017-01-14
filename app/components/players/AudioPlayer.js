@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import ReactPlayer from 'react-player';
+import storage from '../../core/Storage';
 import styles from './AudioPlayer.module.css';
 
 
@@ -30,10 +31,16 @@ export default class AudioPlayer extends Component {
       loaded: 0,
       mutedVol: 0
     };
+    this.storage = storage;
   }
 
   componentDidMount() {
     window.addEventListener('keydown', this.onKeyPress, false);
+
+    this.loadVolume((volume) => {
+      if (volume === null) return;
+      this.setState({ volume });
+    });
   }
 
   onProgress = state => {
@@ -44,7 +51,6 @@ export default class AudioPlayer extends Component {
   };
 
   onEnded = () => {
-    console.log('ended');
     this.setState({ playing: true });
     this.playNext();
   };
@@ -84,6 +90,7 @@ export default class AudioPlayer extends Component {
 
   setVolume = (e) => {
     this.setState({ volume: parseFloat(e.target.value) });
+    this.saveVolume(parseFloat(e.target.value));
   };
 
   playPause = () => {
@@ -93,9 +100,7 @@ export default class AudioPlayer extends Component {
   };
 
   playNext() {
-    console.log('playNext');
     let nextTrack = this.props.player.track + 1;
-    console.log(nextTrack);
     nextTrack = nextTrack >= this.props.player.playlist.length ? 0 : nextTrack;
     this.props.setTrackUrl(nextTrack, this.state.playing);
   }
@@ -109,9 +114,25 @@ export default class AudioPlayer extends Component {
   mute() {
     if (this.state.volume === 0) {
       this.setState({ volume: this.state.mutedVol });
+      this.saveVolume(parseFloat(this.state.mutedVol));
     } else {
       this.setState({ mutedVol: this.state.volume, volume: 0 });
+      this.saveVolume(parseFloat(0));
     }
+  }
+
+  saveVolume = (volume, callback) => {
+    this.storage.setItem('volume', volume, (val) => {
+      if (callback !== null && callback === Function) {
+        callback(val);
+      }
+    });
+  }
+
+  loadVolume(callback) {
+    this.storage.getItem('volume', (val) => {
+      callback(val);
+    });
   }
 
   render() {

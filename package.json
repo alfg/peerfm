@@ -1,6 +1,6 @@
 {
-  "name": "radicalfm",
-  "productName": "RadicalFM",
+  "name": "peerfm",
+  "productName": "PeerFM",
   "version": "0.1.0",
   "description": "A Streaming P2P Music Player",
   "main": "main.js",
@@ -26,8 +26,8 @@
     "cleanup": "mop -v"
   },
   "build": {
-    "productName": "RadicalFM",
-    "appId": "org.develar.RadicalFM",
+    "productName": "PeerlFM",
+    "appId": "org.develar.PeerFM",
     "category": "public.app-category.tools",
     "dmg": {
       "contents": [
@@ -71,7 +71,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alfg/radicalfm.git"
+    "url": "git+https://github.com/alfg/peerfm.git"
   },
   "author": {
     "name": "Alfred Gutierrez",
@@ -80,7 +80,7 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/alfg/radicalfm/issues"
+    "url": "https://github.com/alfg/peerfm/issues"
   },
   "keywords": [
     "electron",

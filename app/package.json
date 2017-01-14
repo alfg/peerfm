@@ -1,13 +1,13 @@
 {
-  "name": "radicalfm",
-  "productName": "RadicalFM",
+  "name": "peerfm",
+  "productName": "PeerFM",
   "version": "0.1.0",
   "description": "A Streaming P2P Music Player",
   "main": "./main.js",
   "author": {
     "name": "Alfred Gutierrez",
     "email": "alf.g.jr@gmail.com",
-    "url": "https://github.com/alfg/radicalfm"
+    "url": "https://github.com/alfg/peerfm"
   },
   "license": "MIT",
   "dependencies": {

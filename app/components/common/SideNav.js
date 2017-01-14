@@ -32,7 +32,7 @@ export default class SideNav extends Component {
   render() {
     return (
       <div className={styles.sideNav}>
-        <Link to="/" className={styles.logo}>RadicalFM</Link>
+        <Link to="/" className={styles.logo}>PeerFM</Link>
 
         <ul className={styles.navLinks}>
           <li className={styles.title}>Main</li>

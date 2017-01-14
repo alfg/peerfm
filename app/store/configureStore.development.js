@@ -19,6 +19,8 @@ const logger = createLogger({
 
 const router = routerMiddleware(hashHistory);
 
+const persistedState = localStorage.getItem('reduxState') ? JSON.parse(localStorage.getItem('reduxState')) : {};
+
 // If Redux DevTools Extension is installed use it, otherwise use Redux compose
 /* eslint-disable no-underscore-dangle */
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
@@ -33,7 +35,13 @@ const enhancer = composeEnhancers(
 );
 
 export default function configureStore(initialState: Object | void) {
-  const store = createStore(rootReducer, initialState, enhancer);
+  const store = createStore(rootReducer, initialState, enhancer, persistedState);
+
+  // TODO: More state stuff and use core/storage.
+  store.subscribe(() => {
+    console.log('Updating state.');
+    localStorage.setItem('reduxState', JSON.stringify(store.getState()));
+  });
 
   if (module.hot) {
     module.hot.accept('../reducers', () =>

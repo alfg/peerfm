@@ -1,6 +1,6 @@
 # Development
 
-RadicalFM is an Electron application based on the [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate) project.
+PeerFM is an Electron application based on the [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate) project.
 
 ## Technology
 * NodeJS

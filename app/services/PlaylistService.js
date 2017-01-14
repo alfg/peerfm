@@ -7,8 +7,6 @@ import storage from '../core/Storage';
 export default class PlaylistService {
 
   constructor() {
-    // this.tc = new TorrentClient(config.defaultPlaylist);
-    // this.playlists = config.playlists;
     storage.getItem('playlists', (playlists) => {
       console.log(playlists);
     });
@@ -25,11 +23,6 @@ export default class PlaylistService {
 
   getHomePlaylists(cb) {
     cb(this.playlists);
-    // this.tc.on('ready', () => {
-    //   this.tc.getPlaylists((data) => {
-    //     cb(data);
-    //   });
-    // });
   }
 
   loadPlaylists(cb) {

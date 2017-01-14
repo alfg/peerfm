@@ -1,11 +1,11 @@
-# RadicalFM
+# PeerFM
 A Streaming Peer-to-Peer Desktop Music Player based on [Magnet URIs](https://en.wikipedia.org/wiki/Magnet_URI_scheme).
 
 Built using [Electron](http://electron.atom.io) and [Node.js](https://nodejs.org/).
 
-**RadicalFM is currently in Alpha!**
+**PeerFM is currently in Alpha!**
 
-![RadicalFM](screenshot.png)
+![PeerFM](screenshot.png)
 
 ## Features
 * Cross Platform supporting OSX, Windows and Linux!

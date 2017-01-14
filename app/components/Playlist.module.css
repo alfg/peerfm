@@ -8,7 +8,7 @@
 
 .container h2 {
   font-size: 2rem;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
 }
 
 .container a {
@@ -30,11 +30,15 @@
 }
 
 .button {
-    background: #fff;
+    background: #fdd82f;
     border: 0;
-    border-radius: 10px;
+    border-radius: 1rem;
+    color: #141619;
     cursor: pointer;
     display: inline-block;
-    padding: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 10px 20px;
     margin: 10px;
+    text-transform: uppercase;
 }
